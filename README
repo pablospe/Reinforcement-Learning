@@ -1,0 +1,15 @@
+Steps:
+   1. Install RLGlue:
+      http://glue.rl-community.org
+
+   2. Set $JAVA_HOME properly:
+      export JAVA_HOME=/usr/lib/jvm/java 
+
+   3. make
+
+
+Also see:
+   * http://2009.rl-competition.org/
+   * http://2009.rl-competition.org/tetris.php
+   * Q-Learning By Examples:  http://people.revoledu.com/kardi/tutorial/ReinforcementLearning/index.html
+

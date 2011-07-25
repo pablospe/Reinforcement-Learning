@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This is a build target file intended to make all of the RLAI environments and agents easier to build.  Of course, you can use this also, but are not obligated to.
+
+This script will believe it is wherever you imported it from.  So, if you import it from environments/mountainCar then to access system you need to tack on ../../system
+We'll try and rely on minimal variables from above.
+
+- this.project.system.directory : relative path from the importing project to here, WITHOUT the trailing slash, so like ../../system
+
+-->
+
+
+<project basedir=".." name="this-project-targets">
+<dirname property="imported.basedir" file="${ant.file.imported}"/>
+
+<property name="src.dir"     value="${basedir}/src"/>
+<property name="test.dir"     value="${basedir}/test"/>
+<property name="build.dir"   value="${basedir}/build"/>
+<property name="classes.dir" value="${build.dir}/classes"/>
+<property name="test.classes.dir" value="${build.dir}/testclasses"/>
+<property name="test.reports"   value="${basedir}/reports"/>
+<property name="test.raw"   value="${basedir}/reports/raw"/>
+<property name="docs.dir"   value="${basedir}/javadocs"/>
+
+<property name="junit.jar" value="${this.project.system.directory}/common/libs/junit.jar" />
+<path id="junit.classpath" location="${junit.jar}"/>
+<path id="test.build.classpath" location="${test.classes.dir}"/>
+
+
+
+
+<target name="rl-clean">
+	<delete dir="${build.dir}"/>
+	<delete file="${result.jar}"/>
+</target>
+
+
+<target name="rl-compile">
+   <mkdir dir="${classes.dir}"/>
+<!-- make sure we get the resources -->
+	<copy todir="${classes.dir}">
+    	<fileset dir="${src.dir}" excludes="**/*.java"/>
+  	</copy>
+
+    <javac srcdir="${src.dir}" destdir="${classes.dir}" debug="${build.debug}" target="1.5"> 
+		<compilerarg value="-Xlint"/> 
+		<classpath>
+            <path refid="rlvizlib.classpath" />
+		    <path refid="project.extra.classpath" />
+		</classpath>
+	</javac>
+</target>
+<target name="rl-set-debug">
+	<property name="build.debug" value="on"/>
+</target>
+
+
+<target name="rl-jar" depends="rl-compile,get.svn.version,get.rlvizlib.version,set.jar.main.class,set.jar.extra.classpath" >
+    <mkdir dir="${dist.dir}" />
+    <jar destfile="${result.jar}" basedir="${classes.dir}" >
+        <manifest>
+		   <attribute name="RLVizLib-Link-Version" value="${rlvizlib.spec.version}"/>
+			<attribute name="Class-Path" value="${jar.extra.classpath}" />
+			<attribute name="Main-Class" value="${jar.main.class}" />
+
+		    <section name="${main.package.name}">
+		      <attribute name="Specification-Title" value="${main.project.name}"/>
+		      <attribute name="Specification-Version" value="${main.package.spec.version}"/>
+		      <attribute name="Specification-Vendor" value="RLAI"/>
+		      <attribute name="Implementation-Title" value="${main.project.name}"/>
+		      <attribute name="Implementation-Version" value="Build:${svn.revision.version}"/> 
+		      <attribute name="Implementation-Vendor" value="${main.vendor.name}"/>
+		    </section>
+        </manifest>
+    </jar>
+</target>
+
+
+<target name="rl-compile-tests" depends="rl-jar">
+    <mkdir dir="${test.classes.dir}"/>
+    <javac srcdir="${test.dir}" destdir="${test.classes.dir}" target="1.5">
+        <classpath>
+            <path refid="rlvizlib.classpath" />
+            <path refid="junit.classpath" />
+			<path refid="result.jar.classpath" />
+        </classpath>
+    </javac>
+</target>
+
+<target name="rl-run-test" depends="rl-compile-tests,rl-jar">
+	<mkdir dir="${test.raw}" />
+   <junit printsummary="withOutAndErr" showoutput="yes" >
+        <classpath>
+            <path refid="junit.classpath" /> 
+			<path refid="result.jar.classpath" />
+			<path refid="test.build.classpath" />
+            <path refid="rlvizlib.classpath" />
+
+        </classpath>
+        
+        <batchtest fork="yes" todir="${test.raw}">
+            <formatter type="xml"/> 
+            <fileset dir="${test.dir}" includes="**/*Test.java"/>
+        </batchtest>
+    </junit>
+</target> 
+
+<target name="rl-test" depends="rl-run-test">
+	<mkdir dir="${test.reports}" />
+    <junitreport todir="${test.reports}">
+        <fileset dir="${test.raw}">
+            <include name="TEST-*.xml" />
+        </fileset>
+        <report todir="${test.reports}" />
+    </junitreport>
+</target>
+
+
+
+<target name="rl-javadoc">
+    <mkdir dir="${docs.dir}"/>
+    <javadoc sourcepath="${src.dir}" destdir="${docs.dir}" classpathref="rlvizlib.classpath"/>
+</target>
+
+
+
+	
+</project>

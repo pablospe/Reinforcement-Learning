@@ -1,0 +1,23 @@
+<project name="TetrisAgentJava" basedir="." >
+
+	<property name="baseLibraryDir" value=".."/>
+	<!-- Things required for build-common.xml -->
+	<property name="this.project.system.directory" value="${baseLibraryDir}/system"/>
+	<property name="this.project.product.directory" value="${baseLibraryDir}/products"/>
+	<property name="project.name" value="${ant.project.name}"/>
+	<property name="main.project.name" value="${ant.project.name}"/>
+	<import file="${this.project.system.directory}/common/ant/build-common.xml"/>
+
+	<!-- Things required for build-targets.xml -->
+	<property name="main.package.name" value="."/>
+	<property name="main.package.spec.version" value="1.0"/>
+	<path id="project.extra.classpath" />
+        <property name="jar.main.class" value="TetrisAgent" />
+        <property name="jar.extra.classpath" value="../system/common/libs/rl-viz/RLVizLib.jar" />
+	<import file="${this.project.system.directory}/common/ant/build-targets.xml"/>
+
+	<!-- this import gives you targets: clean, build, test, javadoc, all -->
+	<import file="${this.project.system.directory}/common/ant/predefined-target-aliases.xml"/>
+
+</project>
+

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This is a common build-file to support building of agents, experiments, and environments in RL-Library -->
+
+<!-- This script will believe it is wherever you imported it from.  So, if you import it from environments/mountainCar then to access system you need to tack on ../../system
+We'll try and rely on minimal variables from above.
+
+- this.project.system.directory : relative path from the importing project to here, WITHOUT the trailing slash, so like ../../system
+
+-->
+
+<project basedir=".."  default="print-imports" name="this-project-common">
+<dirname property="imported.basedir" file="${ant.file.imported}"/>
+<property name="rlvizlib.jar" value="${this.project.system.directory}/common/libs/rl-viz/RLVizLib.jar" />
+<property name="dist.dir"   value="${this.project.product.directory}"/>
+<property name="result.jar" value="${dist.dir}/${project.name}.jar" />
+
+<path id="rlvizlib.classpath" location="${rlvizlib.jar}"/>
+<path id="result.jar.classpath" location="${result.jar}"/>
+
+
+<taskdef resource="net/sf/antcontrib/antlib.xml">
+  <classpath>
+    <pathelement location="${this.project.system.directory}/common/libs/ant-contrib-1.0b3.jar"/>
+  </classpath>
+</taskdef>
+
+
+<target name="get.svn.version" description="Get the current subversion revision number of the project">
+    <exec executable="svnversion"
+          failifexecutionfails="no"
+          outputproperty="svn.revision.version">
+    	<arg value="."/>
+    </exec>
+</target>
+
+<target name="get.rlvizlib.version">
+    <exec executable="java"
+          failifexecutionfails="no"
+          outputproperty="rlvizlib.spec.version">
+		<arg value="-jar"/>
+		<arg value="${rlvizlib.jar}"/>
+		<arg value="--version"/>
+    </exec>
+</target>
+
+<target name="set.jar.extra.classpath">
+	<if>
+		<not><isset property="jar.extra.classpath" /></not>
+		<then>
+			<property name="jar.extra.classpath" value=""/>
+		</then>
+	</if>
+</target>
+
+<target name="set.jar.main.class">
+	<if>
+		<not><isset property="jar.main.class" /></not>
+		<then>
+			<property name="jar.main.class" value=""/>
+		</then>
+	</if>
+</target>
+	
+
+
+<target name="print-imports">
+	<echo message="imported.basedir=${imported.basedir}" />
+	<echo message="systemDir=${systemDir}" />
+	<exec executable="pwd"
+          failifexecutionfails="no"
+          outputproperty="current.working.directory">
+    </exec>
+	<echo message="cwd=${current.working.directory}" />
+
+    
+	
+</target>
+</project>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- convenient targets that can just be imported.  
+
+		These are all aliases to things in build-targets.xml
+		
+		Don't feel obligated to use these, we just put this here to make life easier when adding new envs and agents
+-->
+<project basedir=".." name="predefined-target-aliases">
+<target name="clean" depends="rl-clean"/>
+<target name="build" depends="rl-jar"/>
+<target name="debug" depends="rl-set-debug,rl-jar"/>
+<target name="test" depends="rl-test"/>
+<target name="javadoc" depends="rl-javadoc"/>
+<target name="clean-build" depends="clean, build"/>
+<target name="all" depends="clean, build"/>
+</project>

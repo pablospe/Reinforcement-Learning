@@ -1,0 +1,3 @@
+This directory has some generic scripts that may be brought in by other RL-Projects through svn:externals.
+
+The idea is that we can make life easier for other people to use these scripts, without actually requiring them to be ant experts.

@@ -1,0 +1,59 @@
+<!-- 
+	Set project name to something that identifies your project.  
+	The name of the produced Jar file will be determined by the project name.-->
+<project name="MyProjectName" basedir="." >
+
+<!-- YOU MAY NEED TO CHANGE THIS
+	- Relative path to your base directory, the one that has a system folder in it. -->
+	<property name="baseLibraryDir" value="../../.."/>
+
+<!-- You WILL HAVE TO CHANGE THESE :: Current values are from the Mountain Car project -->
+	<!--This is the Java package that is the base of this project. -->
+	<property name="main.package.name" value="org.rlcommunity.environments.mountaincar/"/>
+	<!--Version for your package. Whatever you want, as long as it's a value number.number -->
+	<property name="main.package.spec.version" value="1.0"/>
+	<!--Your name -->
+	<property name="main.vendor.name" value="Brian Tanner"/>
+
+        <!--The class in your project that has a public static void main(String[] args) method that
+		can load up your agent or environment.-->
+	<property name="jar.main.class" value="org.rlcommunity.environments.mountaincar.MountainCar" />
+
+	<!--
+	This is the entire classpath that will be added to your Jar file.  Basically, when your
+	agent/environment is started like java -jar MyProjectName.jar, Java will look in the exact
+	relative path(s) you put here for classes.  We use this to give easy access to either
+	JavaRLGlueCodec.jar or RLVizLib.jar, because we know they will be in the system/common/libs 
+	directory.
+
+	You can probably leave this as is, but you can add to it if you need to. -->
+        <property name="jar.extra.classpath" value="../system/common/libs/rl-viz/RLVizLib.jar" />
+
+	<!--If your package relies on other Jar files, you will need to specify them here.  This will ensure
+	that ant can see them when compiling your classes.  Note that you still need to make sure that they 
+	are provided later, either in the classpath of your jar (jar.extra.classpath), or they are 
+	un-jarred into your build directory so they will all get JARd up together with your stuff -->
+	<path id="project.extra.classpath" >
+	<!--Hypothetical settings
+		<fileset dir="." >
+		    <include name="my_other_library.jar"/>
+		</fileset>
+	-->
+	</path>
+
+
+<!-- Don't change anything below here unless you are doing something slightly advanced -->
+
+
+	<property name="this.project.system.directory" value="${baseLibraryDir}/system"/>
+	<property name="this.project.product.directory" value="${baseLibraryDir}/products"/>
+	<property name="project.name" value="${ant.project.name}"/>
+	<property name="main.project.name" value="${ant.project.name}"/>
+<!-- Don't change this, but it's where much of the magic that we'll use comes from -->
+	<import file="${this.project.system.directory}/common/ant/build-common.xml"/>
+        <import file="${this.project.system.directory}/common/ant/build-targets.xml"/>
+
+<!-- this import gives you targets: clean, build, test, javadoc, all -->
+	<import file="${this.project.system.directory}/common/ant/predefined-target-aliases.xml"/>
+</project>
+
