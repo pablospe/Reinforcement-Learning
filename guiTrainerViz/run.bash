@@ -44,8 +44,8 @@ startAgentShellInBackGround
 #Linux Command to Start RLVizApp
 #agent-environment-jar-path might look out of place because we are starting agentShell and environmetShell separately
 #but actually, the use of the variable here is so the VizApp knows where to find visualizers
-java -ea -Xmx128M -jar  $systemPath/common/libs/rl-viz/RLVizApp.jar list-agents=true list-environments=true env-viz=true agent-viz=true agent-environment-jar-path=$productsPath
-#startNetGuiTrainerDynamicEnvAgentBothViz
+#java -ea -Xmx128M -jar  $systemPath/common/libs/rl-viz/RLVizApp.jar list-agents=true list-environments=true env-viz=true agent-viz=true agent-environment-jar-path=$productsPath
+startNetGuiTrainerDynamicEnvAgentBothViz
 
 waitForAgentShellToDie
 waitForEnvShellToDie

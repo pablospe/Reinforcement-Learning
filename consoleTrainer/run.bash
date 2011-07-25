@@ -26,17 +26,16 @@ productsPath=$basePath/products
 source $systemPath/scripts/rl-library-includes.sh
 
 #Compile SampleExperiment
-mkdir -p classes
-javac -d classes -classpath $GluePath src/SampleExperiment.java
+#make
 
 #Start Agent in background
-java -jar $productsPath/TetrisAgentJava.jar &
+#java -jar $productsPath/TetrisAgentJava.jar &
 
 #Start Environment in background
 java -jar $productsPath/Tetris.jar &
 
 startRLGlueInBackGround
 
-java -classpath $GluePath:./classes SampleExperiment
+java -classpath $GluePath:./build SampleExperiment
 
 

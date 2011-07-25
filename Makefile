@@ -2,7 +2,7 @@ all:
 	cd RandomAgentJava && ant build
 	cd TetrisAgentJava && ant build
 	cd TetrisEnvJava && ant build
-	cd SampleExperimentRLVizAppJava && bash run.bash
+	cd guiTrainerViz && bash run.bash
 
 
 
