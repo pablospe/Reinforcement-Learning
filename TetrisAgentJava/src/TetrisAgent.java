@@ -1,5 +1,6 @@
 /* Tetris Agent */
 
+import java.util.HashMap;
 import org.rlcommunity.rlglue.codec.types.Action;
 import org.rlcommunity.rlglue.codec.types.Observation;
 import org.rlcommunity.rlglue.codec.AgentInterface;
@@ -38,7 +39,13 @@ public class TetrisAgent implements AgentInterface {
         boolean firstActionOfEpisode;
         int totalSteps;
         double totalRew;
-
+        double last_reward=0;
+        
+        HashMap Q;
+//        String state = "";  // tmp - calculado en la funcion "getValue"
+//        String current_state = "";
+        String next_state = "";
+        String best_state = "";        
 
 
         TaskSpec TSO=null;
@@ -55,6 +62,7 @@ public class TetrisAgent implements AgentInterface {
 
 
         public TetrisAgent(){
+            Q = new HashMap();
         }
 
         /**
@@ -202,6 +210,12 @@ public class TetrisAgent implements AgentInterface {
             action.intArray[0] = 0;
 
             totalSteps++;
+            last_reward = arg0 / 8.0d;
+            if( last_reward > 0 && Q.containsKey(best_state) ) {
+                double value = ((Double) Q.get(best_state)).doubleValue();
+                Q.put(best_state, value+last_reward );
+            }           
+            
             totalRew += arg0;
             piece = -1;
             for (i=0; i<7; i++)
@@ -419,7 +433,7 @@ public class TetrisAgent implements AgentInterface {
     }
 
     static final double MIN_VALUE = -1e10;
-
+   
     /**
     * Tries to find a good placement for a tetromino of type "type".
     * assigns values to "bestrot" and "bestpos"
@@ -430,8 +444,10 @@ public class TetrisAgent implements AgentInterface {
     *              or -1 if the tile cannot be placed.
     */
     public int putTileGreedy(int type)
-    {
+    {       
         double bestvalue = MIN_VALUE;
+        double bestres = 0;
+        double lambda = 0.8;
         for(int rot = 0; rot < nrots[type]; rot++)
         {
             for(int pos = 0; pos < width; pos++)
@@ -439,19 +455,36 @@ public class TetrisAgent implements AgentInterface {
                 copyWorkBoard();
                 int res = putTile(workboard, type, rot, pos);
                 double value;
+                double q_part;
                 if(res >= 0)
                 {
                     value = getValue(workboard);
+                    next_state = getState(workboard, type, rot, pos);
+                    if( !Q.containsKey(next_state) ) {
+                        q_part = 0; 
+                    }
+                    else {
+                        q_part = ((Double) Q.get(next_state)).doubleValue();
+//                        System.out.println("q_part: " + q_part + "\t\t\t Q.size: " + Q.size());
+                    }
+                    
+                    value = 0.1*value + lambda*q_part;
                 }
                 else
                 {
                     value = MIN_VALUE;
                 }
-                if(value > bestvalue)
+              
+                if( res > bestres ) {
+                    bestres = res;
+                }
+                
+                if( value > bestvalue && res >= bestres )
                 {
                     bestvalue = value;
                     bestrot = rot;
                     bestpos = pos;
+                    best_state = getState(board, type, rot, pos);
                 }
             }
 
@@ -460,6 +493,7 @@ public class TetrisAgent implements AgentInterface {
         // if the best placement is legal, then we do it on the real board, too.
         if(bestvalue > MIN_VALUE)
         {
+            Q.put(best_state, new Double(bestvalue));
             int res = putTile(board, type, bestrot, bestpos);
             updateSkyline();
             return res;
@@ -468,6 +502,74 @@ public class TetrisAgent implements AgentInterface {
             return -1;
         }
     }
+    
+    /**
+    * Assigns a heuristic value to the game state represented by "b"
+    *
+    * @param b the board
+    * @return  a value estimation of "b"
+    */
+    double getValue(int b[][])
+    {
+        int heights[] = new int[width];
+        double maxh = 0;
+        double nholes = 0;
+        for(int i = 0; i < width; i++)
+        {
+            int j;
+            for(j=0; j<height; j++)
+            {
+                if (b[i+PADDING][j+PADDING] != 0)
+                    break;
+            }
+            heights[i] = height-j;
+            for(; j < height; j++)
+                if(b[i + PADDING][j + PADDING] == 0)
+                    nholes++;
+
+            if(heights[i] > maxh)
+                maxh = heights[i];
+        }
+
+//        double nholes_mean = 7.19;
+//        double nholes_std  = 4.6175;
+//        double nholes_var  = 21.3213;
+//        nholes = nholes/nholes_var;
+        
+//        double maxh_mean = 8.3672;
+//        double maxh_std  = 3.3452;
+//        double maxh_var  = 11.1901;
+//        maxh = maxh/maxh_var;
+
+        double value = maxh/20 + nholes/200;
+        value = -value+1;
+//        double value = -maxh-0.3*nholes;
+//        System.out.println("nholes: " + nholes + "\t maxh: " + maxh + "\t value: " + value);
+
+        return value;
+    }
+ 
+
+    String getState(int b[][], int type, int rot, int pos)
+    {
+        int heights[] = new int[width];
+        String str = "";       
+        for(int i = 0; i < width; i++)
+        {
+            int j;
+            for(j=0; j<height; j++)
+            {
+                if (b[i+PADDING][j+PADDING] != 0)
+                    break;
+            }
+            heights[i] = height-j;
+           
+            str = str + heights[i];
+        }
+
+        return str + type + rot + pos;
+    }    
+    
 
     /**
     * Puts a tetromino of type "type" on the board "b", wit rotation "rot" and position "pos".
@@ -671,40 +773,7 @@ public class TetrisAgent implements AgentInterface {
 
         return nErased;
     }
-
-    /**
-    * Assigns a heuristic value to the game state represented by "b"
-    *
-    * @param b the board
-    * @return  a value estimation of "b"
-    */
-    double getValue(int b[][])
-    {
-        int heights[] = new int[width];
-        int maxh = 0;
-        int nholes = 0;
-        for(int i = 0; i < width; i++)
-        {
-            int j;
-            for(j=0; j<height; j++)
-            {
-                if (b[i+PADDING][j+PADDING] != 0)
-                    break;
-            }
-            heights[i] = height-j;
-            for(; j < height; j++)
-                if(b[i + PADDING][j + PADDING] == 0)
-                    nholes++;
-
-            if(heights[i] > maxh)
-                maxh = heights[i];
-        }
-        // a very simple heuristic evaluation function...
-        // your algorithm should learn something better ;-)
-        double value = -maxh-0.1*nholes;
-
-        return value;
-    }
+    
         public static void main(String[] args){
             AgentLoader L=new AgentLoader(new TetrisAgent());
             L.run();
