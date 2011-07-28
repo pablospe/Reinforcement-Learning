@@ -210,12 +210,16 @@ public class TetrisAgent implements AgentInterface {
             action.intArray[0] = 0;
 
             totalSteps++;
+//            System.out.printf("steps:%d \t reward:%.2f \n", totalSteps, totalRew );
             last_reward = arg0 / 8.0d;
             if( last_reward > 0 && Q.containsKey(best_state) ) {
                 double value = ((Double) Q.get(best_state)).doubleValue();
                 Q.put(best_state, value+last_reward );
             }           
-            
+            else if( last_reward > 0 ) {
+                Q.put(best_state, last_reward );
+            }           
+
             totalRew += arg0;
             piece = -1;
             for (i=0; i<7; i++)
@@ -253,7 +257,6 @@ public class TetrisAgent implements AgentInterface {
             if (firstActionOfEpisode)
             {
                 firstActionOfEpisode = false;
-
             }
             if (isnewpiece)
             {
@@ -437,7 +440,6 @@ public class TetrisAgent implements AgentInterface {
     /**
     * Tries to find a good placement for a tetromino of type "type".
     * assigns values to "bestrot" and "bestpos"
-    * Put your awesome learning algorithm here.
     *
     * @param type  the type of the tetromino to place. an integer from 0 to 6.
     * @return      the number of lines erased by the proposed placement,
@@ -447,7 +449,7 @@ public class TetrisAgent implements AgentInterface {
     {       
         double bestvalue = MIN_VALUE;
         double bestres = 0;
-        double lambda = 0.8;
+        double lambda = 0.9;
         for(int rot = 0; rot < nrots[type]; rot++)
         {
             for(int pos = 0; pos < width; pos++)
@@ -468,7 +470,7 @@ public class TetrisAgent implements AgentInterface {
 //                        System.out.println("q_part: " + q_part + "\t\t\t Q.size: " + Q.size());
                     }
                     
-                    value = 0.1*value + lambda*q_part;
+                    value = (1-lambda)*value + lambda*q_part;
                 }
                 else
                 {
@@ -493,7 +495,8 @@ public class TetrisAgent implements AgentInterface {
         // if the best placement is legal, then we do it on the real board, too.
         if(bestvalue > MIN_VALUE)
         {
-            Q.put(best_state, new Double(bestvalue));
+            if(bestres!=0)
+                Q.put(best_state, new Double(bestres));
             int res = putTile(board, type, bestrot, bestpos);
             updateSkyline();
             return res;
@@ -504,10 +507,7 @@ public class TetrisAgent implements AgentInterface {
     }
     
     /**
-    * Assigns a heuristic value to the game state represented by "b"
-    *
-    * @param b the board
-    * @return  a value estimation of "b"
+    * Heuristic
     */
     double getValue(int b[][])
     {
