@@ -1,0 +1,94 @@
+\input{tex/preamble}
+\input{tex/comandos}
+\makeindex
+
+\begin{document}
+%     \input{tex/estilo}
+
+    \thispagestyle{empty}
+    \input{tex/titulo}
+    \input{tex/abstract}
+
+    \newpage
+    \input{tex/indice}
+    \input{tex/estilo}
+    \pagestyle{plain}
+
+    \input{tex/intro.tex}
+%     \newpage
+    \input{tex/formalismo.tex}
+%     \newpage
+    \input{tex/QLearning.tex}
+    \input{tex/RL-Glue.tex}
+
+\section{Tetris}
+\label{Tetris}
+
+\noindent
+A continuación se describe con más detalle las características del juego.
+\begin{figure}[h!]
+\centering
+\includegraphics{imagen/tetris}
+\caption{Tetris screenshot}
+\label{Fig:tetris}
+\end{figure}
+
+
+\subsection{Espacio de observación}
+\noindent
+Alta dimensionalidad, con valores discretos que contienen:
+\begin{itemize}
+ \item \textbf{bit map}: representación binaria del actual tablero.
+ \item \textbf{bit vector}: identificación de la pieza que está cayendo.
+ \item \textbf{dos enteros}: tamaño del table, es decir, número de filas y columnas.
+\end{itemize}
+
+\subsection{Espacio de Acciones}
+\noindent
+Manipulación de las piezas que caen: rotación, mover izquierda, derecha, abajo, dejar caer.
+
+\subsection{Rewards}
+\noindent
+Función positiva de eliminación de filas en cada paso:
+\begin{enumerate} \itemsep -5pt
+\item row cleared $\rightarrow$ reward = 1.0
+\item row cleared $\rightarrow$ reward = 2.0
+\item row cleared $\rightarrow$ reward = 4.0
+\item row cleared $\rightarrow$ reward = 8.0
+\end{enumerate}
+
+
+\subsection{Agentes y evaluación}
+\noindent
+El agente disponible, el cual posee una política \textit{Random}\footnote{Política \textit{Random}: selección al azar de la acción a continuación.}, no genera prácticamente ningún reward. Es poca la probabilidad de que pueda eliminar una línea de esa manera. Este es el primer problema a resolver, porque el algoritmo Q-Learning se basa en que eventualmente, por azar u otra política, se llegue a un acierto que consiga un reward. En consecuencia se tomó una política \textit{Greedy}\footnote{Política \textit{Greedy}: en cada paso se intenta maximizar (o minimizar) una medida seleccionada de antemano.}. En este caso, la política intenta \textit{\textbf{minimizar}} la suma de los \textit{\textbf{agujeros actuales}} y la \textit{\textbf{máxima altura actual}}. Ambas características del estado actual del Tetris deben ser normalizadas, para que no influya una más que otra.
+
+Se le incorpora al algoritmo Q-Learning esta política, observar el paso ``\texttt{2.1}'' del pseudo-código del algoritmo \ref{alg:Q}. Puede modificarse esta línea, y así elegir una política diferente más interesante que el simple azar. Una vez hecho ésto, se prueba el algoritmo con varias corridas de $50000$ \textit{steps} (el Tetris comienza con diferentes semillas cada vez), y se consigue en promedio $900$ puntos de rewards.
+
+Un problema observado es que se requiere muchos pasos para la convergencia del algoritmo Q-Learning, ya que la cantidad de estados diferentes que tiene un Tetris es muy grande (el tablero regular es de 10 columnas y 20 filas). % Si bien el Tetris al principio tiende a repetir estados.
+Con el incremento de $50000$ \textit{steps} a $5000000$ \textit{steps} (en la etapa de evaluación), se ha observado solo un $2\%$ de mejora con respecto al agente que solo sigue la política Greedy y sin la utilización de Q-Learning; éste podría considerarse el porcentaje de aprendizaje, el cual no es muy sobresaliente ya que se aumentó por $100$ el número de \textit{steps}. No se ha probado con valores más grande de \textit{steps} por la cantidad de tiempo requerido en la ejecución del problema. Entrenamientos más largo también requerirían una cantidad de memoria excesiva que vuelve impráctica la solución.
+
+El código fuente para todo el conjunto (RL-Glue, RL-Library, Tetris, Q-Learning) puede encontrarse en: \url{http://github.com/pablospe/Reinforcement-Learning}.
+
+
+\section{Conclusiones}
+\label{Conclusiones}
+\noindent
+Las conclusiones que se pueden sacar del trabajo son: que se demora mucho en conseguir que el algoritmo Q-Learning se estabilice, ésto ya había sido mencionado en la introducción como parte de las críticas que se le realizaban al campo. También se pudo observar que la política hace el mayor aporte en la primera etapa del algoritmo, y que, si bien logró aprender un pequeño porcentaje, no lo hace de manera sobresaliente en los primeros $5000000$ \textit{steps}, por la gran cantidad de estados que tiene el problema. Aquí cabe recordar que se usó el algoritmo más básico del campo RL, y probablemente haya mejores soluciones que se puedan utilizar para el Tetris. También una política diferente podría ayudar mucho a mejorar los resultados. El tiempo de ejecución ni el uso de memoria requerida por el algoritmo le ayudan positivamente en este análisis. A pesar de que las conclusiones de mi trabajo sean negativas para Q-Learning (al menos en la utilización de éste para Tetris), se encuentra en el campo RL una línea de soluciones satisfactoria para estos tipos de problemas, y que parece prometer una evolución interesante con el correr de los años, sobre todo en el campo de la robótica.
+
+\begin{center}
+Game Over!
+\end{center}
+
+
+
+
+
+
+
+
+\newpage
+\bibliography{bibliografia} % indica el archivo de bibliografía
+\bibliographystyle{unsrt}   % indica el estilo de la bibliografía.
+                            % Otros estilos (en orden de pref.): pablo, unsrt, alpha, plain, abbrv
+
+\end{document}

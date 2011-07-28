@@ -1,0 +1,39 @@
+\section{Framework RL-Glue}
+\label{RL-Glue}
+
+\noindent
+Aquí se hablará del framework (RL-Glue) y la biblioteca de ejemplos (RL-Library) que me ha permitido la implementación del algoritmo Q-learning.
+
+\subsection{RL-Glue}
+
+\noindent
+RL-Glue \cite{rl-glue} provee una interfaz estándar para que agentes, entornos y experimentos sean conectados en conjunto.
+
+\vspace*{-0.5cm}
+\begin{figure}[h!]
+\centering
+\includegraphics[scale=0.55]{imagen/glue_connections_no_shadow}
+\caption{RL-Glue protocol}
+\label{Fig:RL-Glue}
+\end{figure}
+
+% \noindent
+Como se muestra en la figura \ref{Fig:RL-Glue}, los componentes necesarios son:
+\begin{itemize}
+ \item El \textbf{Agente}: programa que implementa el algoritmo de aprendizaje. En nuestro caso sería donde se ha implementado Q-Learning.
+ \item El \textbf{Entorno}: programa que implementa la dinámica de la tarea, genera las observaciones y refuerzos. El entorno es, por ejemplo, un juego; en nuestro caso, el Tetris.
+ \item El \textbf{Experimento}: programa encargado de la ejecución de un experimento, incluida la secuencia de interacciones agente-entorno y la evaluación del desempeño del agente. El programa puede ser visual o en consola, para una evaluación del rendimiento del agente más cómoda.
+ \item El \textbf{RL-Glue Core}: programa que media la comunicación entre el agente y el entorno en respuesta a los comandos guiados por el experimento.
+\end{itemize}
+
+% \noindent
+El programa \textbf{Experimento} no debe tener acceso directo al \textbf{Agente} o el \textbf{Entorno}, todo contacto debe ir siempre primero a través de la interfaz del \textbf{RL-Glue Core}. Tampoco hay contacto directo entre el agente y el entorno. Cualquier información que el agente o el entorno devuelva pasa a través del RL-Glue al módulo que la necesite, según se especifique en el protocolo.
+
+RL-Glue ha sido usado tanto para enseñar RL en varias universidades así como también para crear experimentos científicos publicados en conferencias líderes.
+
+
+\subsection{RL-Library}
+
+La RL-Library \cite{RL-library} actualmente es una collección de 10 entornos, 3 agents y 2 experimentos. Aquí puede encontrarse el entorno usado (el Tetris) y el agente con una política \textit{random}, el cual fue un punto de partida interesante. El entorno usa una API, llamada RL-Viz, que es una capa arriba de RL-Glue que carga dinámicamente el agente y el entorno, modificando parámetros en tiempo de ejecución y visualizando la interacción y rendimiento.
+
+

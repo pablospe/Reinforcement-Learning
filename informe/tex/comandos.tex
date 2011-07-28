@@ -1,0 +1,40 @@
+%% Entorno Descripción. En tres sabores:
+    %% 1. El más general
+    \newenvironment{descripcion}[2]%
+    {\begin{basedescript}{\desclabelwidth{#2}}%
+    \item[#1]}%
+    {\end{basedescript}}%
+
+    %% 2. Como poner en negrita (también parecido a section* pero puedo seguir en la misma línea)
+    \newenvironment{descripcion0}[1]%
+    {\begin{basedescript}{\desclabelwidth{-1ex}}%
+    \item[#1]}%
+    {\end{basedescript}}%
+
+    %% 3. Con 1.25cm de tamaño
+    \newenvironment{descripcion1}[1]%
+    {\begin{basedescript}{\desclabelwidth{1.25cm}}%
+    \item[#1]}%
+    {\end{basedescript}}%
+
+    %% Entorno para citar texto, 80% del tamaño (10% de cada lado)
+      \newenvironment{citetext}{%
+      \def\leftmargini{0.1\textwidth}%
+      \def\rightmargini{0.1\textwidth}%
+      \vspace*{-0.35cm}%
+      \begin{quotation}\parskip 0.15cm\guillemotleft}%
+      {\guillemotright\end{quotation}\vspace*{0.1cm}}
+
+
+      %% Sin » (caso especial de citetext)
+      \newenvironment{citetext_sin_right}{%
+      \def\leftmargini{0.1\textwidth}%
+      \def\rightmargini{0.1\textwidth}%
+      \vspace*{-0.35cm}%
+      \begin{quotation}\parskip 0.15cm\guillemotleft}%
+      { \end{quotation}\vspace*{0.1cm}}
+
+
+
+\newcommand{\subsubseccion}[1]{\subsubsection*{#1}\addcontentsline{toc}{subsubsection}{#1}}
+

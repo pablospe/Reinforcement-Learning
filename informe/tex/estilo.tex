@@ -1,0 +1,40 @@
+                        %%%%%   ESTILO  %%%%%
+
+\renewcommand{\headrulewidth}{0pt}  %  línea horiz. bajo el encabezado
+\renewcommand{\footrulewidth}{0pt}  %  línea horiz. sobre el pie
+
+\pagenumbering{arabic}
+
+%
+%  Simple faz
+%
+\pagestyle{fancy}
+\fancyhf{}                   % Borrar todos los ajustes
+\fancyhead[RO,RE]{\scshape{\thepage}}  % Números de página en las esquinas de los encabezados
+% \renewcommand{\sectionmark}[1]{
+%     \fancyhead[LO]{\thesection.\ \scshape{#1}}
+%     \fancyhead[LE]{\thesection.\ \scshape{#1}}
+% }
+% \renewcommand{\subsectionmark}[1]{
+%     \fancyhead[LE]{\thesubsection.\ \scshape{#1}}
+% }
+
+
+% %
+% %  Doble faz
+% %
+% \pagestyle{fancy}
+% \fancyhf{}                   % Borrar todos los ajustes
+% \fancyhead[RO,LE]{\begin{small}\thepage\end{small}}  % Números de página en las esquinas de los encabezados
+% \renewcommand{\sectionmark}[1]{
+%     \fancyhead[LO]{\begin{small}\thesection.\ \scshape{#1}\end{small}}
+%     \fancyhead[RE]{\begin{small}\thesection.\ \scshape{#1}\end{small}}
+% }
+% \renewcommand{\subsectionmark}[1]{
+%     \fancyhead[RE]{\begin{small}\thesubsection.\ \scshape{#1}                   \end{small}}
+% }
+
+
+%% Para los perzonalizar itemize
+\renewcommand{\labelitemi}{$\bullet$}
+\renewcommand{\labelitemii}{$\ast$}

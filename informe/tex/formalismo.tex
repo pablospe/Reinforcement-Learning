@@ -1,0 +1,29 @@
+\section{Formalismo}
+\label{Formalismo}
+
+\noindent
+La forma estándar en que se modelan los problemas de RL está esquematizado en la figura~\ref{Fig:Formalismo}. En la figura se ve un robot que representa a un agente, y una nube gris que representa el ambiente. La interacción entre ambos es de la siguiente forma: en el instante $t$ el ambiente se encuentra en el estado $s_{t}$, y el agente recibe una observación $i_{t}$, que depende de dicho estado. La función $B$ es la que decide lo que el agente va a hacer, seleccionando una acción a tomar $a$. Luego de ejecutar dicha acción, el ambiente se encontrará en un nuevo estado $s_{t+1}$, de acuerdo a una \textit{función de transición} $T$, y produce una señal de refuerzo $r$, que también es función del estado $s_{t}$.
+
+\subsection{Markov Decision Process}
+\noindent
+La interacción entre el agente y su ambiente suele formalizarse como Proceso de decisión de Markov (\textit{Markov Decision Process}, MDP en adelante). Un MDP es una tupla $\mathcal{M} = \langle \mathcal{S}, \mathcal{A}, \mathcal{T}, \mathcal{R}, \gamma \rangle$, donde:
+\begin{itemize}
+ \item $\mathcal{S}$ es el conjunto de estados en el que se puede encontrar el ambiente. Puede ser discreto o continuo.
+ \item $\mathcal{A}$ es el conjunto de acciones a disposición del agente. Puede ser discreto o continuo.
+ \item $T(s,a,s')$ representa la probabilidad de pasar al estado $s'$ estando en el estado $s$ y ejecutando la acción $a$.
+ \item $R(s,a)$ indica el refuerzo esperado de ejecutar $a$ en $s$.
+ \item $\gamma \in (0,1]$ es el \textit{factor de descuento}. Una interpretación usual es que $\gamma$ representa ``la probabilidad de seguir vivo en el próximo instante''. La idea es que si esta probabilidad es menor que 1, refuerzos que espero obtener en el futuro ``valen'' menos que los que espero obtener próximamente, porque en el futuro quizás ya ni esté vivo.
+\end{itemize}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[scale=1.1]{imagen/rl_model}
+\caption{Modelo RL estandar}
+\label{Fig:Formalismo}
+\end{figure}
+
+
+\subsection{Política}
+\noindent
+Un agente elige sus acciones de acuerdo a una política (\textit{policy}). Formalmente, una política es una función $\pi: \mathcal{S} \rightarrow \mathcal{A}$. Es decir, dado un estado $s$, $\pi(s)$ nos devuelve la acción a tomar desde el estado $s$.
+

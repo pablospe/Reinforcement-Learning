@@ -1,0 +1,153 @@
+\section{Q-Learning por ejemplos}
+\label{QLearning}
+
+\noindent
+El contenido de esta sección se debe a \cite{Q-Learning-By-Examples}.
+
+\subsection{Problema}
+\noindent
+Supongamos que tenemos 5 habitaciones en un edificio conectado por puertas, como se muestra en la figura \ref{Fig:Building}. Salas de la A a la F. Se puede considerar afuera (F) como una sala grande que cubre el edificio. Hay dos puertas que conducen a F (Goal), a través de sala B y la sala de E.
+\begin{figure}[h!]
+\centering
+\includegraphics[scale=0.6]{imagen/Agent_clip_image002}
+\caption{Edificio con 5 habitaciones. El Objetivo (Goal) es ir a F.}
+\label{Fig:Building}
+\end{figure}
+
+\subsection{Modelo}
+\noindent
+Llamemos a cada habitación -incluyendo el exterior del edificio- como un \textit{estado}. Y a los movimientos del agente -de una habitación a otra- como una \textit{acción}. Se puede dibujar un grafo donde los nodos representan los \textit{Estados}, mientras que las flechas representan las \textit{Acciones}.
+\begin{figure}[h!]
+\centering
+\includegraphics[scale=0.5]{imagen/Q-Learning-Example_clip_image026}
+\caption{Grafo de transición.}
+\label{Fig:GrafoInicial}
+\end{figure}
+
+\noindent
+Si se pone un agente en cualquier sitio, se desea que vaya a la habitación objetivo (el nodo F). Para configurar este tipo de objetivo, damos valores a cada puerta (es decir, las flechas del gráfico), estos valores son una especie de recompensa (\textit{reward}). Las puertas que conducen de inmediato a la meta tienen un reward de $100$, y las otras $0$ (ver figura \ref{Fig:GrafoInicial}). Porque las puertas son de dos vías (de la A pueden ir a E y de E puede volver a la A), se le asignan dos flechas a cada habitación. Un lazo adicional con recompensa $100$ se da a la sala objetivo (que desde F vuelva a F), de modo que si el agente llega a la meta, se quedará allí para siempre.
+
+Se puede representar el grafo y los valores de rewards instantáneos con la siguiente matriz~R: % (figura \ref{Fig:R}):
+\begin{figure}[h!]
+\centering
+\includegraphics[scale=0.45]{imagen/Q-Learning-Example_clip_image006}
+\caption{Reward Table}
+\label{Fig:R}
+\end{figure}
+
+
+\subsection{Algoritmo}
+\noindent
+Ahora podemos describir el algoritmo llamado Q-Learning para el ejemplo. Imagine nuestro agente como un robot virtual que debe aprender mediante la experiencia. El agente puede pasar de una habitación a otra, pero no tiene el conocimiento del entorno. No sabe cuál secuencia de puertas debe tomar el agente para salir del edificio.
+
+Similar a $R$, ponemos una matriz llamada $Q$ en el cerebro de nuestro agente que representará la memoria de qué el agente ha aprendido a través de la experiencia. Las filas de $Q$ representan el estado actual del agente, y las columnas apunta a las acciones para ir al siguiente estado.
+
+Al principio, el agente que no sabe nada, entonces inicializamos la matriz $Q$ a cero. Para simplificar este ejemplo se asumirá que el número de estado es conocido (6 habitaciones), pero en un caso más general $Q$ comienza con cero filas.
+
+La regla de transición del Q-Learning es:
+$$Q(s_t,a_t) ~ \leftarrow ~ \overbrace{\underbrace{R(s_t,a_t)}_{\rm reward} \quad + \underbrace{\gamma}_{\rm factor~de~descuento} *\quad ~ ~ \underbrace{\max_a\{Q(s_{t+1}, a)\}}_{\rm max~futuro~valor}}^{\rm valor~aprendido}$$
+
+% $$Q(s_t,a_t) \leftarrow \underbrace{Q(s_t,a_t)}_{\rm old~value} + \underbrace{\alpha_t(s_t,a_t)}_{\rm learning~rate} \times \left[ \overbrace{\underbrace{R(s_{t+1})}_{\rm reward} + \underbrace{\gamma}_{\rm discount~factor} \underbrace{\max_{a_{t+1}}Q(s_{t+1}, a_{t+1})}_{\rm max~future~value}}^{\rm learned~value} - \underbrace{Q(s_t,a_t)}_{\rm old~value}\right]$$
+
+
+
+En la fórmula anterior el valor de la entrada en la matriz $Q$ (donde las filas representan los estados y las columnas acciones) es igual a la entrada correspondiente en matriz $R$, más una multiplicación de un factor de descuento $\gamma$ por el valor máximo de $Q$ para todas las acciones en el próximo estado. El parámetro $\gamma$ tiene un valor entre $0$ y $1$.  Si está más cerca de $0$, el agente tiende a considerar solo una recompensa inmediata. Si está más cerca de $1$, el agente tendrá en cuenta una futura recompensa con mayor peso, dispuestos a retrasar la recompensa.
+
+El agente explorará de estado en estado hasta llegar a la meta. A esta exploración se llama un episodio. En un episodio el agente se mueve de un estado inicial hasta el estado final. Una vez que el agente llega al estado final, el programa pasa al siguiente episodio. Se ha demostrado en~\cite{Q-Learning} que el algoritmo \ref{alg:Q} converge.
+
+\newpage
+\begin{algorithm}[H]
+\KwIn{Diagrama con un estado final (matriz $R$)}
+\KwOut{Rutas mínimas de cualquier estado inicial al estado final (matriz $Q$)}
+
+    \texttt{1.} Inicializar la matriz $Q$ a cero \\
+    \texttt{2.} \ForEach{Episodio}{
+        \texttt{2.1.} Seleccionar el estado inicial aleatoriamente  \\
+        \texttt{2.2.} \While{No se haya alcanzado el ``Goal''}{
+%                 \vspace*{-5pt}
+                \begin{itemize} \itemsep -5pt
+                \item Elegir una de todas las acciones posibles para el estado actual
+                \item Usando esta posible acción, considere ir al siguiente estado
+                \item Obtener el máximo valor de Q de este estado basado en todas las posibles acciones
+                \item Calcular:
+                $$Q(s_t,a_t) ~ \leftarrow ~ R(s_t,a_t) ~ + ~ \gamma * \max_a\{Q(s_{t+1}, a)\}$$
+                \item Establecer el siguiente estado como el estado actual
+                \end{itemize}
+                \vspace*{-15pt}
+            }
+    }
+\caption{Algoritmo Q-Learning}
+\label{alg:Q}
+\end{algorithm}
+
+\noindent
+El algoritmo anterior es utilizado por el agente para aprender de la experiencia (\textit{training}). Cada episodio es equivalente a una sesión de training. En cada sesión de training, el agente explora el entorno (representado por la matriz $R$), recibe el reward (o nada) hasta que se alcance el estado final. El propósito del training es mejorar el ``cerebro'' de nuestro agente, representado por la matriz $Q$. Más training, mejor será la matriz $Q$ que puede ser utilizada por el agente para moverse en forma óptima. Si la matriz $Q$ se ha mejorado lo suficiente, en vez de explorar ida y vuelta por una misma habitación, el agente encuentra la ruta más rápida hasta el estado final.
+
+
+\subsection{Ejemplo numérico}
+
+\noindent
+Para entender cómo funciona el algoritmo de aprendizaje $Q$, se hará varios pasos de ejemplos numéricos. Asignemos al parámetro $\gamma = 0.8$ y el estado inicial como habitación $B$. También inicializar la matriz $Q$ a cero:
+\begin{figure}[h!]
+\centering
+\includegraphics[scale=0.45]{imagen/Q-Learning-Example_clip_image004}
+\end{figure}
+
+% \noindent
+Observar en la segunda fila (estado $B$) de la matriz $R$ (figura \ref{Fig:R}). Hay dos posibles acciones para el estado actual de $B$: el estado $D$ o $F$. Por selección al azar, elegimos ir a $F$ como nuestra acción.
+
+Ahora imaginemos que estamos en $F$. Mirar en la sexta fila de la matriz R (es decir, estado $F$). Cuenta con 3 acciones posibles: ir al estado $B$, $E$ o $F$.
+\begin{align*}
+Q(s_t,a_t) & \leftarrow ~ R(s_t,a_t) ~ + ~ \gamma * \max_a\{Q(s_{t+1}, a)\} \\
+Q(B,F) & = R(B,F) ~ + ~ 0.8 * \max\{Q(F,B), Q(F,E), Q(F,F)\} \\
+       & = 100 + 0.8 * 0 \\
+       & = 100
+\end{align*}
+
+Dado que la matriz $Q$ está todavía en cero, $Q(F,B)$, $Q(F,E)$ y $Q(F,F)$ son todos cero. El resultado del cálculo $Q(B,F)$ es 100 debido al \textit{reward}.
+
+El siguiente estado es $F$, convertido ahora en el estado actual. Debido a que F es el estado final, terminamos un episodio. El cerebro de nuestro agente ahora contienen la matriz $Q$ actualizada:
+\begin{figure}[h!]
+\centering
+\includegraphics[scale=0.45]{imagen/Q-Learning-Example_clip_image014}
+\end{figure}
+
+% \noindent
+Para el próximo episodio, comenzamos con el estado inicial aleatoriamente. Esta vez, por ejemplo, comenzaremos con el estado $D$, que según $R$ cuenta con 3 posibles acciones, ir al estado $B$, $C$ y $E$. Por selección al azar, elegimos la acción de ir al estado $B$.
+
+Ahora imaginemos que estamos en $B$. Mirar en la segunda fila de la matriz R (es decir, estado $B$). Cuenta con 2 acciones posibles: ir al estado $B$ o $F$.
+\begin{align*}
+Q(s_t,a_t) & \leftarrow ~ R(s_t,a_t) ~ + ~ \gamma * \max_a\{Q(s_{t+1}, a)\} \\
+Q(D,B) & = R(D,B) ~ + ~ 0.8 * \max\{Q(B,B), Q(B,F)\} \\
+       & = 0 + 0.8 * {0,100} \\
+       & = 80
+\end{align*}
+
+% \noindent
+El siguiente estado es $B$, convertido ahora en el estado actual. Repetimos el \textit{loop} interno del \textit{Q-Learning} algoritmo porque $B$ no es el \textit{goal}. Similar al episodio anterior se va a llegar al estado $F$ (goal) a partir del $B$, y así terminar este episodio. Ahora nuestro cerebro es el siguiente:
+\begin{figure}[h!]
+\centering
+\includegraphics[scale=0.45]{imagen/Q-Learning-Example_clip_image024_0000}
+\end{figure}
+
+% \noindent
+Si nuestro agente aprende más y más experiencia a través de muchos episodios, finalmente alcanzará convergencia a los valores siguiente: \\
+\begin{figure}[h!]
+\centering
+\includegraphics[scale=0.45]{imagen/Q-Learning-Example_clip_image030}
+\end{figure}
+
+% \noindent
+Esta matriz $Q$ se puede normalizar en un porcentaje dividiendo todas las entradas válidas con el número más alto (dividido por 500, en este caso). Aunque dividiremos por 5 para mantener similitud con las anteriores matrices:
+\begin{figure}[h!]
+\centering
+\includegraphics[scale=0.45]{imagen/Q-Learning-Example_clip_image032}
+\end{figure}
+
+\noindent
+Una vez que la matriz $Q$ alcanza casi el valor de convergencia, nuestro agente puede llegar a la meta de una manera óptima. La secuencia de estados puede ser fácilmente calculada mediante la búsqueda de las acciones que hacen que el máximo el valor en $Q$ en cada iteración. El grafo representado por el cerebro del agente, o sea $Q$, queda de la siguiente manera:
+\begin{figure}[h!]
+\centering
+\includegraphics[scale=0.5]{imagen/Q-Learning-Example_clip_image102}
+\end{figure}
+
